@@ -1,31 +1,21 @@
-import os
 import discord
-import requests
-import random
-from discord.ext import commands, tasks
+import os
+import asyncio
 
-TOKEN = os.getenv("DISCORD_TOKEN")
-OMDB_KEY = os.getenv("OMDB_KEY")
+TOKEN = os.getenv("DISCORD_TOKEN")  # from GitHub secret
 
 intents = discord.Intents.default()
-intents.message_content = True
-bot = commands.Bot(command_prefix="!", intents=intents)
+client = discord.Client(intents=intents)
 
-movies = ["Inception", "The Matrix", "Interstellar", "The Dark Knight", "Parasite"]
+CHANNEL_ID = 1406165038741323796  # 👈 replace with your actual channel ID
 
-@bot.event
+@client.event
 async def on_ready():
-    print(f"Logged in as {bot.user}")
-    channel = discord.utils.get(bot.get_all_channels(), name="general")  # change if needed
+    print(f'Bot connected as {client.user}')
+    channel = client.get_channel(CHANNEL_ID)
     if channel:
-        movie = random.choice(movies)
-        url = f"http://www.omdbapi.com/?t={movie}&apikey={OMDB_KEY}"
-        response = requests.get(url).json()
-        if response["Response"] == "True":
-            msg = f"🎬 **Movie of the Day:** {response['Title']} ({response['Year']})\n⭐ IMDB: {response['imdbRating']}\n📖 {response['Plot']}"
-        else:
-            msg = f"🎬 Movie of the Day: {movie}"
-        await channel.send(msg)
-    await bot.close()  # stop after sending
+        await channel.send("🎬 Daily Movie Bot is now online!")
+    else:
+        print("⚠️ Channel not found! Check your channel ID.")
 
-bot.run(TOKEN)
+client.run(TOKEN)
